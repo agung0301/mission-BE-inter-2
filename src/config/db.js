@@ -1,0 +1,19 @@
+import mysql from 'mysql2/promise';
+import "dotenv/config";
+
+const db = mysql.createPool({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  port: 3306,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
+});
+
+db.getConnection()
+    .then(() => console.log('Database terhubung ke pool!'))
+    .catch((err) => console.error('Gagal konek ke database:', err.message));
+
+export default db;

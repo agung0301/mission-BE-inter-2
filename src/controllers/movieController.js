@@ -2,7 +2,8 @@ import Movie from '../models/movieModel.js';
 
 export const getMovies = async (req, res) => {
   try {
-    const data = await Movie.getAll();
+    const { search, genre, sort } = req.query;
+    const data = await Movie.getAll({ search, genre, sort });
     res.status(200).json(data);
   } catch (error) {
     res.status(500).json({ message: "Gagal ambil data", error: error.message });

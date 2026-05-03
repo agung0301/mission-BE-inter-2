@@ -1,15 +1,43 @@
 import db from '../config/db.js';
 
 const Movie = {
-    getAll: async () => {
-        const query = `
+    getAll: async ({ search, genre, sort }) => {
+        let query = `
       SELECT 
         f.*, 
         g.nama_genre 
       FROM film_series f
       LEFT JOIN genre g ON f.genre_id = g.id
+      WHERE 1=1
     `;
-        const [rows] = await db.query(query);
+        let queryParams = [];
+
+        if (search) {
+            query += ` AND f.judul LIKE ?`;
+            queryParams.push(`%${search}%`);
+        }
+
+        if (genre) {
+            query += ` AND f.genre_id = ?`;
+            queryParams.push(genre);
+        }
+
+        const validSortFields = ['tahun_rilis', 'rating_film', 'judul'];
+
+        const direction = sort === 'terlama' ? 'ASC' : 'DESC';
+
+        let finalSort;
+
+        if (sort === 'terlama' || sort === 'terbaru') {
+            finalSort = 'f.tahun_rilis'; 
+        } else if (validSortFields.includes(sort)) {
+            finalSort = `f.${sort}`;    
+        } else {
+            finalSort = 'f.id';         
+        }
+
+        query += ` ORDER BY ${finalSort} ${direction}`;
+        const [rows] = await db.query(query, queryParams);
         return rows;
     },
 
